@@ -1,0 +1,65 @@
+name: "Manuscript Preflight CI"
+description: "Ephemeral pre-submission check for retracted citations (Crossref/OpenAlex/PubMed), GRIM granularity, p-value consistency, and table-vs-prose N drift."
+branding:
+  icon: "check-circle"
+  color: "blue"
+
+inputs:
+  manuscript:
+    description: "Path to manuscript file (.tex, .qmd, .md, or .docx)"
+    required: true
+  bib:
+    description: "Optional path to BibTeX (.bib) file"
+    required: false
+    default: ""
+  offline:
+    description: "Skip live Crossref/OpenAlex/PubMed HTTP lookups and run deterministic local checks only"
+    required: false
+    default: "false"
+  fail-on:
+    description: "Minimum severity that exits non-zero (fail, warn, or none)"
+    required: false
+    default: "fail"
+  output-markdown:
+    description: "Optional path to write Markdown preflight report"
+    required: false
+    default: "preflight-report.md"
+  output-json:
+    description: "Optional path to write structured JSON report"
+    required: false
+    default: "preflight-report.json"
+
+runs:
+  using: "composite"
+  steps:
+    - name: Set up Python 3.11
+      uses: actions/setup-python@v5
+      with:
+        python-version: "3.11"
+    - name: Install manuscript-preflight-ci
+      shell: bash
+      run: python -m pip install --quiet "${{ github.action_path }}"
+    - name: Run Manuscript Preflight CI
+      shell: bash
+      env:
+        INPUT_MANUSCRIPT: ${{ inputs.manuscript }}
+        INPUT_BIB: ${{ inputs.bib }}
+        INPUT_OFFLINE: ${{ inputs.offline }}
+        INPUT_FAIL_ON: ${{ inputs.fail-on }}
+        INPUT_OUT_MD: ${{ inputs.output-markdown }}
+        INPUT_OUT_JSON: ${{ inputs.output-json }}
+      run: |
+        ARGS=("check" "$INPUT_MANUSCRIPT" "--fail-on" "$INPUT_FAIL_ON")
+        if [ -n "$INPUT_BIB" ]; then
+          ARGS+=("--bib" "$INPUT_BIB")
+        fi
+        if [ "$INPUT_OFFLINE" = "true" ]; then
+          ARGS+=("--offline")
+        fi
+        if [ -n "$INPUT_OUT_MD" ]; then
+          ARGS+=("--output-md" "$INPUT_OUT_MD")
+        fi
+        if [ -n "$INPUT_OUT_JSON" ]; then
+          ARGS+=("--output-json" "$INPUT_OUT_JSON")
+        fi
+        mpreflight "${ARGS[@]}"
