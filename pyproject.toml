@@ -7,7 +7,7 @@ name = "manuscript-preflight-ci"
 version = "0.1.0"
 description = "Ephemeral pre-submission manuscript linter for retracted/broken DOIs, GRIM granularity, test-statistic p-values, and table-vs-prose sample-size (N) drift."
 readme = "README.md"
-license = { text = "MIT" }
+license = "MIT"
 requires-python = ">=3.11"
 authors = [{ name = "Manuscript Preflight CI Contributors" }]
 keywords = [
@@ -23,7 +23,6 @@ keywords = [
 classifiers = [
   "Development Status :: 4 - Beta",
   "Intended Audience :: Science/Research",
-  "License :: OSI Approved :: MIT License",
   "Programming Language :: Python :: 3",
   "Programming Language :: Python :: 3.11",
   "Programming Language :: Python :: 3.12",
